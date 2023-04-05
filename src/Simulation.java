@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Scanner;
@@ -10,6 +11,7 @@ public class Simulation {
     int completedP1;
     int completedP2;
     int completedP3; // Completed Components
+    double finished;
     double simulationTime ; // Add this line
     double totalTimeSpentInQueueWS1 = 0;
     double totalTimeSpentInQueueWS2 = 0;
@@ -269,6 +271,58 @@ public class Simulation {
         System.out.printf("Workstation 2 - Avg time in system (W): %.2f, Avg arrival rate (λ): %.4f, Avg # of components in system (L): %.2f%n", avgTimeInSystemWS2, lambda2, L2);
         System.out.printf("Workstation 3 - Avg time in system (W): %.2f, Avg arrival rate (λ): %.4f, Avg # of components in system (L): %.2f%n", avgTimeInSystemWS3, lambda3, L3);
         System.out.printf("Facility - Avg time in system (W): %.2f, Avg arrival rate (λ): %.4f, Avg # of components in system (L): %.2f%n", avgTimeInSystemFacility, lambdaFacility, LFacility);
+    }
+
+    public void simulate(double simulationTime) {
+        long startTime = System.currentTimeMillis(); 
+
+        // Initialize inspectors with their respective average processing times
+        Inspector inspector1 = new Inspector(1, 0);
+        Inspector inspector2 = new Inspector(2, 0);
+
+        // Create components
+        Component c1 = new Component("C1", 1, 1, 1, 1);
+        Component c2 = new Component("C2", 2, 0, 1, 0);
+        Component c3 = new Component("C3", 2, 0, 0, 1);
+
+
+        // Initialize workstations
+        Workstation workstation1 = new Workstation(1);
+        Workstation workstation2 = new Workstation(2);
+        Workstation workstation3 = new Workstation(3);
+
+
+        // Initialize event queue
+        eventQueue = new PriorityQueue<>();
+        //eventQueueNew = new PriorityQueue<>();
+
+        // Add initial inspection finished events
+        eventQueue.add(new Event(EventType.INSPECTION_FINISHED, avg1, c1, inspector1, null));
+        eventQueue.add(new Event(EventType.INSPECTION_FINISHED, avg22, c2, inspector2, null));
+        eventQueue.add(new Event(EventType.INSPECTION_FINISHED, avg23, c3, inspector2, null));
+
+        // Run the simulation for a fixed time (10,000 seconds in this case)
+        
+        int assembledProducts = 0;
+        while (!eventQueue.isEmpty() && eventQueue.peek().getTime() <= simulationTime) {
+            Event event = eventQueue.poll();
+            //eventQueueNew.add(event);
+
+            switch (event.getType()) {
+                case INSPECTION_FINISHED -> handleInspectionFinished(event, workstation1, workstation2, workstation3, eventQueue);
+                case ASSEMBLY_STARTED -> handleAssemblyStarted(event, eventQueue);
+                case ASSEMBLY_FINISHED -> {
+                    handleAssemblyFinished(event);
+                    assembledProducts++;
+                }
+
+            }
+
+
+        }
+        long endTime = System.currentTimeMillis(); 
+        finished = endTime - startTime;
+
     }
 
     public static void main(String[] args) {

@@ -1,55 +1,38 @@
 public class Ensamble {
 
     public static void main(String[] args) {
+        double simTime = 0.0;
+        double[] ensemble = new double[11];
+        for(int y = 0; y <=10;y++){
         // Ensemble averaging loop
         int numSims = 10;
-        double[] ensembleAvgs = new double[101];
-
-        // Initialization phase
-        int initializationTime = 10000;
-        for (int i = 0; i < initializationTime; i++) {
-            Simulation initializationSimulation = new Simulation();
-            initializationSimulation.simulate();
-        }
+        double[] ensembleAvgs = new double[11];
+        
 
         // Ensemble averaging loop
-        for (int i = 0; i < numSims; i++) {
+        for (int i = 0; i < numSims; i++) {    
             Simulation simulation = new Simulation();
-            simulation.simulate();
-            ensembleAvgs[i] = simulation.completedP1;
+            simulation.simulate(simTime);
+            ensembleAvgs[i] = simulation.finished;
+                  
         }
 
         // Calculate ensemble averages
-        double[] steps = new double[100];
+        double sum = 0;
 
-        for (int i = 0; i < steps.length; i++) {
-            double sum = 0;
-
-            for (double ensembleAvg : ensembleAvgs) {
-                sum += ensembleAvg;
-            }
-
-            steps[i] = sum / numSims;
+        for (double ensembleAvg : ensembleAvgs) {
+            sum += ensembleAvg;
         }
 
-        // Calculate standard deviation
-        double[] deviation = new double[steps.length];
+        ensemble[y] = sum / numSims;
+        simTime +=1000;
 
-        for (int i = 0; i < steps.length; i++) {
-            double sumOfSquares = 0;
-
-            for (double ensembleAvg : ensembleAvgs) {
-                sumOfSquares += Math.pow(ensembleAvg - steps[i], 2);
-            }
-
-            deviation[i] = Math.sqrt(sumOfSquares / (numSims - 1));
         }
-
-
-        // Print time step ensemble averages and standard deviations
-        for (int i = 0; i < steps.length; i++) {
-            System.out.printf("Time: "+i+", Ensemble Average: "+steps[i]+ ", Standard Deviation:" +deviation[i]+ "\n"  );
+        // Print time step ensemble averages and standard deviations 
+        for (int i=0; i<ensemble.length;i++){     
+            System.out.println("Time: "+i*1000+", Ensemble Average: "+ensemble[i]  );
         }
+        
     }
 
 
